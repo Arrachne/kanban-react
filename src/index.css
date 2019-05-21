@@ -1,13 +1,130 @@
 body {
+  background: url('./assets/background.png');
+  background-size: 100%; 
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 13px;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
+.kanban {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+  overflow-x: auto;
+  height: 100vh;
+  width: 100%;    
+  line-height: 19px;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  margin: 10px;
+  min-width: 272px;
+  max-width: 25%;
+  max-height: 95%;
+  background: #DFE3E6;
+  border-radius: 3px;
+}
+
+.col-name {
+  margin: 4px 12px;
+  font-weight: bold;
+  word-wrap: break-word;
+  max-height: 4rem;
+  overflow-y: auto;
+}
+
+.column-inner {
+  display: flex;
+  flex-direction: column;
+  flex: 0 20 auto;
+  overflow-y: auto;
+}
+
+.task {
+  margin: 4px 12px;
+  padding: 4px 12px;
+  background: #FFFFFF;
+  box-shadow: 0px 1px 4px rgba(9, 45, 66, 0.25);
+  border-radius: 3px;
+  word-wrap: break-word;
+}
+
+.blank-spot {
+  background: #C9D2D9;
+  box-shadow: none;
+}
+
+.dragging {
+  transform: rotate(5deg);
+}
+
+textarea {
+  border: none;
+  width: 100%;
+  height: 100%;
+}
+
+.add-element {
+  margin: 4px 12px;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+  min-height: 43px;
+}
+
+.add-element-offer {
+  margin: 12px;
+}
+
+.add-element-offer-btn {
+  border: none;
+  background: #DFE3E6;
+  width: 100%;
+  height: 100%;
+  text-align: left;
+  color: #6B808C;
+}
+
+.new-element {
+  flex: 1 0 auto;
+  margin: 8px 0;
+  padding: 4px 4px;
+  background: #FFFFFF;
+  box-shadow: 0px 1px 4px rgba(9, 45, 66, 0.25);
+  border-radius: 3px;
+  word-wrap: break-word;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.add-element-confirm {
+  background: #39C071; 
+  font-weight: bold;
+  border: none;
+  color: #FFFFFF;
+  border-radius: 3px;
+  padding: 8px;
+}
+
+.add-element-reject {
+  padding: 8px;
+  border: none;
+  background: #DFE3E6;
+}
+
+.plus {
+  background: #6B808C;
+}
+
+.hidden {
+  display: none;
 }
