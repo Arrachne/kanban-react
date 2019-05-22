@@ -1,51 +1,59 @@
 import React, { Component } from 'react';
-import Task from "./Task"
-import ButtonCreateOffer from "./ButtonCreateOffer"
-import FromCreateNewElement from "./FromCreateNewElement"
+import Task from "./Task";
+import ButtonCreateOffer from "./ButtonCreateOffer";
+import FromCreateNewElement from "./FormCreateNewElement";
 
-class Column extends Component {    
+class Column extends Component {
     state = {
         isFormHidden: true,
-        newElementType: ''
-    }
+        newElemType: 'task'
+    };
+
+    // передать содержимое value родителю и скрыть форму для ввода
+    handleClickAddTask = (value) => {
+        this.props.onClickAddTask(this.props.colIndex, value);
+        this.setState({
+            isFormHidden: true,
+        });
+    };
+
+    // передать id таска и id колонки, из которой начали двигать
+    handleDragStart = (event, id) => {
+        this.props.onDragStart(this.props.colIndex, event, id);
+    };
 
     render() {
-        var { name, taskList } = this.props
+        var { name, taskList } = this.props;
 
         var tasks = taskList.map((task, index) =>
-            <Task key={index} text={task} />
-        )
-
-        var head = (<div className="col-name">
-            {name}
-        </div>
-        )
-        var inner = (<div className="column-inner">
-                        {tasks}
-                    </div>
-        )
-
-        // тип эл-та, который должна создать форма
-        // taskList[0] показывает, явл-ся ли колонка активной. но на самом деле надо отдельный атрибут в app
-        var newElemType = taskList[0] ? 'task' : 'column'
+            <Task key={index} taskIndex ={index} text={task} onDragStart = {this.handleDragStart}/>
+        );
 
         return (
-            <div className='column' >
-                {name ? head : ''}
-                {taskList[0] ? inner : ''}
-                <ButtonCreateOffer isBtnHidden={!this.state.isFormHidden} onClick={this.handleClick.bind(this, 'createOfferBtn')} newElemType = {newElemType} />
-                <FromCreateNewElement isFormHidden={this.state.isFormHidden} onClick={this.handleClick.bind(this, 'rejectBtn')} newElemType = {newElemType}/>
+            <div className='column column-style' >
+                <div className="col-name">
+                    {name}
+                </div>
+                <div className="column-inner">
+                    {tasks}
+                </div>
+                <ButtonCreateOffer isBtnHidden={!this.state.isFormHidden} onClick={this.handleClickOffer.bind(this)} newElemType={this.state.newElemType} />
+                <FromCreateNewElement
+                    isFormHidden={this.state.isFormHidden}
+                    onClickAdd={this.handleClickAddTask}
+                    onClickReject={this.handleClickOffer.bind(this)}
+                    newElemType={this.state.newElemType}
+                />
             </div>
-        )
-    }
+        );
+    };
 
 
-    handleClick = (btn) => {
-        console.log(btn, ' pressed')
+    handleClickOffer = () => {
         this.setState({
             isFormHidden: !this.state.isFormHidden,
-        })
-    }
+        });
+    };
 
 }
 
