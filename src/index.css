@@ -59,7 +59,8 @@ body {
 }
 
 .dragging {
-  transform: rotate(5deg);
+  /* transform: rotate(5deg); */
+  box-shadow: none;
 }
 
 textarea {

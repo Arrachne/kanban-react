@@ -25,16 +25,22 @@ class Column extends PureComponent {
     // передать id таска и id колонки, из которой начали двигать
     handleDragOver = (id) => {
         console.log('handleDragOver col', 'this.props.colIndex: ', this.props.colIndex, 'id: ', id);
-        this.props.onDragOver(this.props.colIndex);
+        this.props.onDragOver(this.props.colIndex, id);
+    };
+
+    // передать id таска и id колонки, из которой начали двигать
+    handleDragEnd = (event, id) => {
+        console.log('handleDragEnd col', 'event: ', event, 'id: ', id);
+        this.props.onDragEnd(event, id);
     };
 
     render() {
         var { name, taskList } = this.props;
 
         var tasks = taskList.map((task, index) =>
-            <Task key={index} taskIndex ={index} text={task} onDragStart = {this.handleDragStart} 
-            onDragOver = {this.handleDragOver} 
-            onDragEnd = {this.props.onDragEnd}/>
+            <Task key={index} taskIndex={index} text={task} onDragStart={this.handleDragStart}
+                onDragOver={this.handleDragOver}
+                onDragEnd={this.handleDragEnd} />
         );
 
         return (
@@ -42,10 +48,8 @@ class Column extends PureComponent {
                 <div className="col-name">
                     {name}
                 </div>
-                <div className="column-inner" 
-                    onDragOver = {this.handleDragOver} 
-                    >
-                        {tasks}
+                <div className="column-inner">
+                    {tasks}
                 </div>
                 <ButtonCreateOffer isBtnHidden={!this.state.isFormHidden} onClick={this.handleClickOffer.bind(this)} newElemType={this.state.newElemType} />
                 <FromCreateNewElement

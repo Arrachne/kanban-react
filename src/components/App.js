@@ -1,9 +1,9 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import Column from "./Column"
 import ButtonCreateOffer from "./ButtonCreateOffer";
 import FromCreateNewElement from "./FormCreateNewElement";
 
-class App extends PureComponent {
+class App extends Component {
     state = {
         data: [
             {
@@ -17,7 +17,6 @@ class App extends PureComponent {
         ],
         isFormHidden: true,
         newElemType: 'column',
-        isDragging: false,
         draggedTaskIndex: null,
         draggedColIndex: null,
         draggetTaskText: null,
@@ -64,7 +63,7 @@ class App extends PureComponent {
     // добавить данные о новом таске в нужную колонку
     handleClickAddTask = (columnKey, value) => {
         var newData = [...this.state.data];
-        newData[columnKey].tasks.push(value)
+        newData[columnKey].tasks.push(value);
         this.setState({
             data: newData,
         });
@@ -72,52 +71,69 @@ class App extends PureComponent {
 
     handleDragStart = (colIndex, event, taskIndex) => {
         // запомнить колонку и место, откуда достали таск, и его текст
-        if (!this.state.isDragging) {
-            var draggedItem = this.state.data[colIndex].tasks[taskIndex];
-            this.setState({
-                isDragging: true,
-                draggetTaskText: draggedItem,
-                draggedTaskIndex: taskIndex,
-                draggedColIndex: colIndex,
-            });
-            event.dataTransfer.effectAllowed = "move";
-            event.dataTransfer.setData("text/html", event.target);
-            event.dataTransfer.setDragImage(event.target, event.target.offsetWidth / 2, event.target.offsetHeight / 2);
-        };
+
+        var draggedItem = this.state.data[colIndex].tasks[taskIndex];
+        this.setState({
+            draggetTaskText: draggedItem,
+            draggedTaskIndex: taskIndex,
+            draggedColIndex: colIndex,
+        });
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/html", event.target);
+        event.dataTransfer.setDragImage(event.target, event.target.offsetWidth / 2, event.target.offsetHeight / 2);
+
     };
 
 
     handleDragOver = (colIndex, taskIndex) => {
-        console.log('handleDragOver app', 'colIndex: ', colIndex, 'taskIndex: ', taskIndex);
+        console.log('-----------------------');
+        console.log('this.state.draggetTaskText:', this.state.draggetTaskText);
+        console.log('handleDragOver app', 'колонка над чем тащим (colIndex): ', colIndex, 'taskIndex: ', taskIndex);
+        console.log('колонка ИЗ КОТОРОЙ ВЗЯЛИ (draggedColIndex)', this.state.draggedColIndex, 'this.state.draggedTaskIndex: ', this.state.draggedTaskIndex);
+
         // пока тянем таск над местом, где он был, ничего не делать
         if ((this.state.draggedColIndex === colIndex) && (this.state.draggedTaskIndex === taskIndex)) {
             return;
-        }
+        };
 
         var newData = [...this.state.data];
 
+        console.log('newData', newData);
+
+        // console.log('newData[this.state.draggedColIndex].tasks', newData[this.state.draggedColIndex].tasks);
+
         // удалить элемент из колонки, из которой его достали
-        newData[this.state.draggedColIndex].tasks.splice(this.state.draggedTaskIndex, 1);
+        // newData[this.state.draggedColIndex].tasks.splice(this.state.draggedTaskIndex, 1);
+        var column = newData[this.state.draggedColIndex].tasks.filter((task, index) => index !== this.state.draggedTaskIndex);
+        newData[this.state.draggedColIndex].tasks = column;
+        console.log('newData, удалили элемент из колонки, из которой его достали', newData);
 
         // добавить элемент в колонку, куда переместили
-        newData[colIndex].tasks.splice(taskIndex, 0, this.state.draggetTaskText);
+        column = newData[colIndex].tasks;
+        column.splice(taskIndex, 0, this.state.draggetTaskText);
+        console.log('column', column);
+        newData[colIndex].tasks = column;
+        console.log('newData, добавили элемент в колонку, куда переместили', newData);
 
         this.setState({
             data: newData,
+            draggedTaskIndex: taskIndex,
+            draggedColIndex: colIndex,
         });
+
+        console.log('this.state.data: ', this.state.data);
+        // this.forceUpdate();
+
     };
 
-
-    // ПЕРЕДАТЬ В ТАСК 
-    handleDragEnd = () => {
-        if (this.state.isDragging) {
-            this.setState({
-                isDragging: false,
-                draggetTaskText: null,
-                draggedTaskIndex: null,
-                draggedColIndex: null,
-            });
-        }
+    handleDragEnd = (event, id) => {
+        console.log('handleDragEnd APP, this.state.data: ', this.state.data);
+        this.setState({
+            draggetTaskText: null,
+            draggedTaskIndex: null,
+            draggedColIndex: null,
+        });
+        this.forceUpdate();
     };
 
 }
