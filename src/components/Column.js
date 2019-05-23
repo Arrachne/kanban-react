@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import Task from "./Task";
 import ButtonCreateOffer from "./ButtonCreateOffer";
 import FromCreateNewElement from "./FormCreateNewElement";
 
-class Column extends Component {
+class Column extends PureComponent {
     state = {
         isFormHidden: true,
         newElemType: 'task'
@@ -22,11 +22,19 @@ class Column extends Component {
         this.props.onDragStart(this.props.colIndex, event, id);
     };
 
+    // передать id таска и id колонки, из которой начали двигать
+    handleDragOver = (id) => {
+        console.log('handleDragOver col', 'this.props.colIndex: ', this.props.colIndex, 'id: ', id);
+        this.props.onDragOver(this.props.colIndex);
+    };
+
     render() {
         var { name, taskList } = this.props;
 
         var tasks = taskList.map((task, index) =>
-            <Task key={index} taskIndex ={index} text={task} onDragStart = {this.handleDragStart}/>
+            <Task key={index} taskIndex ={index} text={task} onDragStart = {this.handleDragStart} 
+            onDragOver = {this.handleDragOver} 
+            onDragEnd = {this.props.onDragEnd}/>
         );
 
         return (
@@ -34,8 +42,10 @@ class Column extends Component {
                 <div className="col-name">
                     {name}
                 </div>
-                <div className="column-inner">
-                    {tasks}
+                <div className="column-inner" 
+                    onDragOver = {this.handleDragOver} 
+                    >
+                        {tasks}
                 </div>
                 <ButtonCreateOffer isBtnHidden={!this.state.isFormHidden} onClick={this.handleClickOffer.bind(this)} newElemType={this.state.newElemType} />
                 <FromCreateNewElement
