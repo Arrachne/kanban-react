@@ -5,18 +5,12 @@ class Task extends PureComponent {
         isDragging: false
     }
 
-
-    // передать таск, который тянем
+    // передать родителю таск, который тянем
     handleDragStart = (event) => {
         this.props.onDragStart(event, this.props.taskIndex);
         this.setState({
             isDragging: true
         })
-    };
-
-    // передать таск, над которым тянем
-    handleDragOver = () => {
-        this.props.onDragOver(this.props.taskIndex);
     };
 
     handleDragEnd = (event) => {
@@ -29,9 +23,15 @@ class Task extends PureComponent {
 
     render() {
         var text = this.props.text;
-        var dragging = this.state.isDragging ? 'dragging' : '';
+        var dragging = this.state.isDragging ? ' dragging' : '';
+        var blankSpot = this.props.isBlankSpot ? ' blank-spot' : '';
+        var blankSpotHeight = this.props.isBlankSpot ? this.props.blankSpotHeight : 'auto';
         return (
-            <div className={'task ' + dragging} draggable onDragStart={this.handleDragStart} onDragOver = {this.handleDragOver} onDrop = {this.handleDragEnd}>
+            <div className={'task' + dragging + blankSpot} style={{ height: blankSpotHeight }} draggable
+                onDragStart={this.handleDragStart}
+                onDragLeave={this.props.onDragLeave}
+                onDragEnd={this.handleDragEnd}
+            >
                 {text}
             </div>
         );

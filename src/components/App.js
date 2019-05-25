@@ -19,16 +19,23 @@ class App extends Component {
         newElemType: 'column',
         draggedTaskIndex: null,
         draggedColIndex: null,
-        draggetTaskText: null,
+        draggedTaskText: null,
+        blankSpotCol: null,
+        blankSpotIndex: null,
+        blankSpotHeight: null,
     };
 
     render() {
         var columns = this.state.data.map((column, index) =>
             <Column
                 key={index} colIndex={index} name={column.name} taskList={column.tasks}
+                isBlankSpotHere={index == this.state.blankSpotCol}
+                blankSpotId={this.state.blankSpotIndex}
+                blankSpotHeight={this.state.blankSpotHeight}
                 onClickAddTask={this.handleClickAddTask}
                 onDragStart={this.handleDragStart}
                 onDragOver={this.handleDragOver}
+                onDragLeave={this.handleDragLeave}
                 onDragEnd={this.handleDragEnd}
             />
         );
@@ -70,70 +77,101 @@ class App extends Component {
     };
 
     handleDragStart = (colIndex, event, taskIndex) => {
-        // запомнить колонку и место, откуда достали таск, и его текст
+        // текст таска
+        var draggedTaskText = this.state.data[colIndex].tasks[taskIndex];
+        // вычислить высоту таска
+        var marginTop = Number(window.getComputedStyle(event.target).getPropertyValue('margin-top').replace(/\D/g, ''));
+        var blankSpotHeight = event.target.offsetHeight - 2 * marginTop;
 
-        var draggedItem = this.state.data[colIndex].tasks[taskIndex];
+        // запомнить колонку и место, откуда достали таск, его текст и высоту
         this.setState({
-            draggetTaskText: draggedItem,
+            draggedTaskText: draggedTaskText,
             draggedTaskIndex: taskIndex,
             draggedColIndex: colIndex,
+            blankSpotHeight: blankSpotHeight,
         });
+
+        // назначить эффект move для Chrome и Mozilla
         event.dataTransfer.effectAllowed = "move";
         event.dataTransfer.setData("text/html", event.target);
         event.dataTransfer.setDragImage(event.target, event.target.offsetWidth / 2, event.target.offsetHeight / 2);
-
     };
 
+    handleDragOver = (colIndex, event) => {
+        // целевой inner колонки
+        var NodesUnderCursor = document.elementsFromPoint(event.pageX, event.pageY);
+        var targetCol = NodesUnderCursor.find((elem) => elem.classList.contains("column"));
+        var targetInnerCol = targetCol.querySelector('.column-inner');
+        // где должен появиться пустой контейнер
+        var blankSpotIndex = this.getBlankSpotIndex(targetInnerCol, event.pageY);
 
-    handleDragOver = (colIndex, taskIndex) => {
-        console.log('-----------------------');
-        console.log('this.state.draggetTaskText:', this.state.draggetTaskText);
-        console.log('handleDragOver app', 'колонка над чем тащим (colIndex): ', colIndex, 'taskIndex: ', taskIndex);
-        console.log('колонка ИЗ КОТОРОЙ ВЗЯЛИ (draggedColIndex)', this.state.draggedColIndex, 'this.state.draggedTaskIndex: ', this.state.draggedTaskIndex);
-
-        // пока тянем таск над местом, где он был, ничего не делать
-        if ((this.state.draggedColIndex === colIndex) && (this.state.draggedTaskIndex === taskIndex)) {
+        // пока тянем таск над местом, где он был до этого, или откуда достали, ничего не делать
+        if (((this.state.blankSpotCol === colIndex) && (this.state.blankSpotIndex === blankSpotIndex))
+            || ((this.state.draggedColIndex === colIndex) && (this.state.draggedTaskIndex === blankSpotIndex))) {
             return;
         };
 
         var newData = [...this.state.data];
+        // удалить старый пустой контейнер
+        if (this.state.blankSpotCol != null) {
+            newData[this.state.blankSpotCol].tasks.splice(this.state.blankSpotIndex, 1);
+        };
 
-        console.log('newData', newData);
-
-        // console.log('newData[this.state.draggedColIndex].tasks', newData[this.state.draggedColIndex].tasks);
-
-        // удалить элемент из колонки, из которой его достали
-        // newData[this.state.draggedColIndex].tasks.splice(this.state.draggedTaskIndex, 1);
-        var column = newData[this.state.draggedColIndex].tasks.filter((task, index) => index !== this.state.draggedTaskIndex);
-        newData[this.state.draggedColIndex].tasks = column;
-        console.log('newData, удалили элемент из колонки, из которой его достали', newData);
-
-        // добавить элемент в колонку, куда переместили
-        column = newData[colIndex].tasks;
-        column.splice(taskIndex, 0, this.state.draggetTaskText);
-        console.log('column', column);
+        // вставить пустой контейнер на месте курсора        
+        var column = newData[colIndex].tasks;
+        column.splice(blankSpotIndex, 0, '');
         newData[colIndex].tasks = column;
-        console.log('newData, добавили элемент в колонку, куда переместили', newData);
 
         this.setState({
             data: newData,
-            draggedTaskIndex: taskIndex,
-            draggedColIndex: colIndex,
+            blankSpotCol: colIndex,
+            blankSpotIndex: blankSpotIndex,
         });
-
-        console.log('this.state.data: ', this.state.data);
-        // this.forceUpdate();
-
     };
 
-    handleDragEnd = (event, id) => {
-        console.log('handleDragEnd APP, this.state.data: ', this.state.data);
-        this.setState({
-            draggetTaskText: null,
-            draggedTaskIndex: null,
-            draggedColIndex: null,
+    handleDragLeave = () => {
+        // удалить старый пустой контейнер
+        if (this.state.blankSpotCol != null) {
+            var newData = [...this.state.data];
+            newData[this.state.blankSpotCol].tasks.splice(this.state.blankSpotIndex, 1);
+
+            this.setState({
+                data: newData,
+                blankSpotCol: null,
+                blankSpotIndex: null,
+            });
+        };
+    };
+
+    handleDragEnd = () => {
+        // удалить старый пустой контейнер и вставить вместо него таск
+        // если пустого контейнера нет, значит таск останется там, откуда его достали
+        if (this.state.blankSpotCol != null) {
+            var newData = [...this.state.data];
+            var taskOldIndex = this.state.blankSpotIndex < this.state.draggedTaskIndex ? this.state.draggedTaskIndex + 1 : this.state.draggedTaskIndex;
+            newData[this.state.blankSpotCol].tasks.splice(this.state.blankSpotIndex, 1, this.state.draggedTaskText);
+            newData[this.state.draggedColIndex].tasks.splice(taskOldIndex, 1);
+
+            // очистить данные о перетаскивании
+            this.setState({
+                data: newData,
+                draggedTaskText: null,
+                draggedTaskIndex: null,
+                draggedColIndex: null,
+                blankSpotCol: null,
+                blankSpotIndex: null,
+                blankSpotHeight: null,
+            });
+        };
+    };
+
+    getBlankSpotIndex = (inner, y) => {
+        var a = Array.from(inner.children);
+        var nextTaskIndex = a.findIndex((elem) => {
+            var elemY = elem.offsetTop + elem.offsetHeight / 2;
+            return elemY >= y;
         });
-        this.forceUpdate();
+        return nextTaskIndex == -1 ? a.length - 1 : nextTaskIndex;
     };
 
 }

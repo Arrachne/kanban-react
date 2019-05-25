@@ -1,9 +1,9 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import Task from "./Task";
 import ButtonCreateOffer from "./ButtonCreateOffer";
 import FromCreateNewElement from "./FormCreateNewElement";
 
-class Column extends PureComponent {
+class Column extends Component {
     state = {
         isFormHidden: true,
         newElemType: 'task'
@@ -23,28 +23,24 @@ class Column extends PureComponent {
     };
 
     // передать id таска и id колонки, из которой начали двигать
-    handleDragOver = (id) => {
-        console.log('handleDragOver col', 'this.props.colIndex: ', this.props.colIndex, 'id: ', id);
-        this.props.onDragOver(this.props.colIndex, id);
-    };
-
-    // передать id таска и id колонки, из которой начали двигать
-    handleDragEnd = (event, id) => {
-        console.log('handleDragEnd col', 'event: ', event, 'id: ', id);
-        this.props.onDragEnd(event, id);
+    handleDragOver = (event) => {
+        this.props.onDragOver(this.props.colIndex, event);
     };
 
     render() {
         var { name, taskList } = this.props;
-
         var tasks = taskList.map((task, index) =>
-            <Task key={index} taskIndex={index} text={task} onDragStart={this.handleDragStart}
-                onDragOver={this.handleDragOver}
-                onDragEnd={this.handleDragEnd} />
+            <Task key={index} taskIndex={index} text={task}
+                isBlankSpot={this.props.isBlankSpotHere ? (index == this.props.blankSpotId) : false}
+                blankSpotHeight={this.props.blankSpotHeight}
+                onDragStart={this.handleDragStart}
+                onDragLeave={this.props.onDragLeave}
+                onDragEnd={this.props.onDragEnd} />
         );
 
         return (
-            <div className='column column-style' >
+
+            <div className='column column-style' onDragOver={this.handleDragOver} >
                 <div className="col-name">
                     {name}
                 </div>
@@ -61,7 +57,6 @@ class Column extends PureComponent {
             </div>
         );
     };
-
 
     handleClickOffer = () => {
         this.setState({
