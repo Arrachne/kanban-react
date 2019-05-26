@@ -28,7 +28,6 @@ class Task extends PureComponent {
         return (
             <div className={'task' + dragging + blankSpot} style={{ height: blankSpotHeight }} draggable
                 onDragStart={this.handleDragStart}
-                onDragLeave={this.props.onDragLeave}
                 onDragEnd={this.handleDragEnd}
             >
                 {text}

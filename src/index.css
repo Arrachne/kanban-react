@@ -59,7 +59,6 @@ body {
 }
 
 .dragging {
-  /* transform: rotate(5deg); */
   box-shadow: none;
 }
 

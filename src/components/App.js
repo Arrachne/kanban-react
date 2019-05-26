@@ -35,7 +35,6 @@ class App extends Component {
                 onClickAddTask={this.handleClickAddTask}
                 onDragStart={this.handleDragStart}
                 onDragOver={this.handleDragOver}
-                onDragLeave={this.handleDragLeave}
                 onDragEnd={this.handleDragEnd}
             />
         );
@@ -98,54 +97,42 @@ class App extends Component {
     };
 
     handleDragOver = (colIndex, event) => {
-        // целевой inner колонки
-        var NodesUnderCursor = document.elementsFromPoint(event.pageX, event.pageY);
-        var targetCol = NodesUnderCursor.find((elem) => elem.classList.contains("column"));
-        var targetInnerCol = targetCol.querySelector('.column-inner');
-        // где должен появиться пустой контейнер
-        var blankSpotIndex = this.getBlankSpotIndex(targetInnerCol, event.pageY);
+        try {
+            // целевой inner колонки
+            var NodesUnderCursor = document.elementsFromPoint(event.pageX, event.pageY);
+            var targetCol = NodesUnderCursor.find((elem) => elem.classList.contains("column"));
+            var targetInnerCol = targetCol.querySelector('.column-inner');
+            // где должен появиться пустой контейнер
+            var blankSpotIndex = this.getBlankSpotIndex(targetInnerCol, event.pageY);
 
-        // пока тянем таск над местом, где он был до этого, или откуда достали, ничего не делать
-        if (((this.state.blankSpotCol === colIndex) && (this.state.blankSpotIndex === blankSpotIndex))
-            || ((this.state.draggedColIndex === colIndex) && (this.state.draggedTaskIndex === blankSpotIndex))) {
-            return;
+            // пока тянем таск над местом, где он был до этого, или откуда достали, ничего не делать
+            if (((this.state.blankSpotCol === colIndex) && (this.state.blankSpotIndex === blankSpotIndex))
+                || ((this.state.draggedColIndex === colIndex) && (this.state.draggedTaskIndex === blankSpotIndex))) {
+                return;
+            };
+
+            var newData = [...this.state.data];
+            // удалить старый пустой контейнер
+            if (this.state.blankSpotCol != null) {
+                newData[this.state.blankSpotCol].tasks.splice(this.state.blankSpotIndex, 1);
+            };
+
+            // вставить пустой контейнер на месте курсора        
+            var column = newData[colIndex].tasks;
+            column.splice(blankSpotIndex, 0, '');
+            newData[colIndex].tasks = column;
+
+            this.setState({
+                data: newData,
+                blankSpotCol: colIndex,
+                blankSpotIndex: blankSpotIndex,
+            });
+        } catch (error) {
+            this.handleDragEnd();
         };
-
-        var newData = [...this.state.data];
-        // удалить старый пустой контейнер
-        if (this.state.blankSpotCol != null) {
-            newData[this.state.blankSpotCol].tasks.splice(this.state.blankSpotIndex, 1);
-        };
-
-        // вставить пустой контейнер на месте курсора        
-        var column = newData[colIndex].tasks;
-        column.splice(blankSpotIndex, 0, '');
-        newData[colIndex].tasks = column;
-
-        this.setState({
-            data: newData,
-            blankSpotCol: colIndex,
-            blankSpotIndex: blankSpotIndex,
-        });
-    };
-
-    handleDragLeave = () => {
-        // debugger;
-        // // удалить старый пустой контейнер
-        // if (this.state.blankSpotCol != null) {
-        //     var newData = [...this.state.data];
-        //     newData[this.state.blankSpotCol].tasks.splice(this.state.blankSpotIndex, 1);
-
-        //     this.setState({
-        //         data: newData,
-        //         blankSpotCol: null,
-        //         blankSpotIndex: null,
-        //     });
-        // };
     };
 
     handleDragEnd = () => {
-        debugger;
         // удалить старый пустой контейнер и вставить вместо него таск
         // если пустого контейнера нет, значит таск останется там, откуда его достали
         if (this.state.blankSpotCol != null) {

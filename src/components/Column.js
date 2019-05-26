@@ -34,7 +34,6 @@ class Column extends Component {
                 isBlankSpot={this.props.isBlankSpotHere ? (index === this.props.blankSpotId) : false}
                 blankSpotHeight={this.props.blankSpotHeight}
                 onDragStart={this.handleDragStart}
-                onDragLeave={this.props.onDragLeave}
                 onDragEnd={this.props.onDragEnd} 
             />
         );
