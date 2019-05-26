@@ -20,7 +20,6 @@ class Task extends PureComponent {
         this.props.onDragEnd(event, this.props.taskIndex);
     };
 
-
     render() {
         var text = this.props.text;
         var dragging = this.state.isDragging ? ' dragging' : '';

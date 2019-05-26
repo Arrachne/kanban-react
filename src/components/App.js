@@ -29,7 +29,7 @@ class App extends Component {
         var columns = this.state.data.map((column, index) =>
             <Column
                 key={index} colIndex={index} name={column.name} taskList={column.tasks}
-                isBlankSpotHere={index == this.state.blankSpotCol}
+                isBlankSpotHere={index === this.state.blankSpotCol}
                 blankSpotId={this.state.blankSpotIndex}
                 blankSpotHeight={this.state.blankSpotHeight}
                 onClickAddTask={this.handleClickAddTask}
@@ -130,25 +130,33 @@ class App extends Component {
     };
 
     handleDragLeave = () => {
-        // удалить старый пустой контейнер
-        if (this.state.blankSpotCol != null) {
-            var newData = [...this.state.data];
-            newData[this.state.blankSpotCol].tasks.splice(this.state.blankSpotIndex, 1);
+        // debugger;
+        // // удалить старый пустой контейнер
+        // if (this.state.blankSpotCol != null) {
+        //     var newData = [...this.state.data];
+        //     newData[this.state.blankSpotCol].tasks.splice(this.state.blankSpotIndex, 1);
 
-            this.setState({
-                data: newData,
-                blankSpotCol: null,
-                blankSpotIndex: null,
-            });
-        };
+        //     this.setState({
+        //         data: newData,
+        //         blankSpotCol: null,
+        //         blankSpotIndex: null,
+        //     });
+        // };
     };
 
     handleDragEnd = () => {
+        debugger;
         // удалить старый пустой контейнер и вставить вместо него таск
         // если пустого контейнера нет, значит таск останется там, откуда его достали
         if (this.state.blankSpotCol != null) {
             var newData = [...this.state.data];
-            var taskOldIndex = this.state.blankSpotIndex < this.state.draggedTaskIndex ? this.state.draggedTaskIndex + 1 : this.state.draggedTaskIndex;
+
+            var taskOldIndex = this.state.draggedTaskIndex;
+
+            //  если находимся в изначальной колонке, пересчитать позицию таска
+            if (this.state.blankSpotCol === this.state.draggedColIndex) {
+                taskOldIndex = this.state.blankSpotIndex < this.state.draggedTaskIndex ? this.state.draggedTaskIndex + 1 : this.state.draggedTaskIndex;
+            };
             newData[this.state.blankSpotCol].tasks.splice(this.state.blankSpotIndex, 1, this.state.draggedTaskText);
             newData[this.state.draggedColIndex].tasks.splice(taskOldIndex, 1);
 
@@ -171,7 +179,7 @@ class App extends Component {
             var elemY = elem.offsetTop + elem.offsetHeight / 2;
             return elemY >= y;
         });
-        return nextTaskIndex == -1 ? a.length - 1 : nextTaskIndex;
+        return nextTaskIndex === -1 ? a.length - 1 : nextTaskIndex;
     };
 
 }

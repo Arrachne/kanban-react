@@ -31,11 +31,12 @@ class Column extends Component {
         var { name, taskList } = this.props;
         var tasks = taskList.map((task, index) =>
             <Task key={index} taskIndex={index} text={task}
-                isBlankSpot={this.props.isBlankSpotHere ? (index == this.props.blankSpotId) : false}
+                isBlankSpot={this.props.isBlankSpotHere ? (index === this.props.blankSpotId) : false}
                 blankSpotHeight={this.props.blankSpotHeight}
                 onDragStart={this.handleDragStart}
                 onDragLeave={this.props.onDragLeave}
-                onDragEnd={this.props.onDragEnd} />
+                onDragEnd={this.props.onDragEnd} 
+            />
         );
 
         return (

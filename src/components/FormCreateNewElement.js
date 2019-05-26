@@ -26,7 +26,14 @@ class FromCreateNewElement extends Component {
         this.setState({
             value: ''
         });
-    }
+    };
+
+    handleEnterKeyUp = (event) => {
+        if (event.keyCode === 13) {
+            event.preventDefault();
+            this.handleConfirmClick();
+          }
+    };
 
     render() {
         const { isFormHidden, newElemType } = this.props;
@@ -39,7 +46,7 @@ class FromCreateNewElement extends Component {
         return (
             <div className={"add-element " + hidden}>
                 <div className="new-element">
-                    <textarea className="elementName" name="element-name" rows={rowsCount} placeholder={'Введите название ' + entityTypeGenitive}
+                    <textarea className="elementName" name="element-name" onKeyUp = {this.handleEnterKeyUp} rows={rowsCount} placeholder={'Введите название ' + entityTypeGenitive}
                         value={this.state.value} onChange={this.handleChange}>
                     </textarea>
                 </div>
